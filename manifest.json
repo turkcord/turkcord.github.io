@@ -1,0 +1,22 @@
+{
+  "name": "Türkcord",
+  "short_name": "Türkcord",
+  "description": "Discord'un tüm özelliklerini barındıran, yenilikçi Türk topluluk platformu",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#313338",
+  "theme_color": "#5865F2",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://cdn.discordapp.com/embed/avatars/0.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn.discordapp.com/embed/avatars/0.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
