@@ -86,9 +86,10 @@ class ChatEngineClass {
 
     let translateHtml = '';
     if (msg.content && !msg.isTranslated && msg.senderId !== Auth.currentUser?.uid) {
+      const safeContent = msg.content.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
       translateHtml = `
         <div class="message-translate">
-          <button onclick="TranslateService.translateMessage('${msg.id}', '${msg.content.replace(/'/g, "\\'")}')">
+          <button onclick="window.TranslateService.translateMessage('${msg.id}', '${safeContent}')">
             <i class="fa-solid fa-language"></i> Türkçe'ye Çevir
           </button>
           <div class="translated-text hidden" id="translated-${msg.id}"></div>
@@ -115,10 +116,11 @@ class ChatEngineClass {
     container.appendChild(div);
   }
 
+  // 🔴 BURASI DÜZELTİLDİ: Noktalı virgül kaldırıldı, zincirleme düzeltildi
   escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
-    return div.innerHTML;
+    return div.innerHTML
       .replace(/\n/g, '<br>')
       .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color:var(--primary-color)">$1</a>');
   }
@@ -160,7 +162,7 @@ class ChatEngineClass {
     }
 
     // Bot trigger check
-    BotEngine.checkTriggers(content, this.currentId);
+    window.BotEngine.checkTriggers(content, this.currentId);
   }
 
   async handleFileUpload(input) {
@@ -173,9 +175,9 @@ class ChatEngineClass {
       const url = await getDownloadURL(storageRef);
       
       await this.send('', { attachments: [url] });
-      App.showToast('Dosya gönderildi!', 'success');
+      window.App.showToast('Dosya gönderildi!', 'success');
     } catch (err) {
-      App.showToast('Dosya yüklenirken hata.', 'error');
+      window.App.showToast('Dosya yüklenirken hata.', 'error');
     }
     input.value = '';
   }
@@ -188,7 +190,7 @@ class ChatEngineClass {
       
       await this.send('🎙️ Sesli Not', { voiceNoteURL: url });
     } catch (err) {
-      App.showToast('Sesli not gönderilemedi.', 'error');
+      window.App.showToast('Sesli not gönderilemedi.', 'error');
     }
   }
 
@@ -199,7 +201,7 @@ class ChatEngineClass {
         <i class="fa-solid fa-headset" style="font-size:64px;color:var(--primary-color)"></i>
         <h3>Ses Kanalı</h3>
         <p>Bu kanala katılmak için aşağıdaki butona tıklayın.</p>
-        <button class="btn btn-primary" onclick="VoiceEngine.joinChannel('${channelId}')" style="margin-top:16px">
+        <button class="btn btn-primary" onclick="window.VoiceEngine.joinChannel('${channelId}')" style="margin-top:16px">
           <i class="fa-solid fa-phone"></i> Kanala Katıl
         </button>
       </div>
