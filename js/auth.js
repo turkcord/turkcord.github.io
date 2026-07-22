@@ -25,11 +25,11 @@ class AuthManager {
     const displayName = document.getElementById('reg-displayname').value.trim() || email.split('@')[0];
     
     if (!email || !password) {
-      App.showError('E-posta ve şifre zorunludur.');
+      window.App.showError('E-posta ve şifre zorunludur.');
       return;
     }
     if (password.length < 6) {
-      App.showError('Şifre en az 6 karakter olmalıdır.');
+      window.App.showError('Şifre en az 6 karakter olmalıdır.');
       return;
     }
 
@@ -55,9 +55,9 @@ class AuthManager {
         createdAt: serverTimestamp()
       });
 
-      App.showToast('Kayıt başarılı! Hoş geldin.', 'success');
+      window.App.showToast('Kayıt başarılı! Hoş geldin.', 'success');
     } catch (err) {
-      App.showError(this.getErrorMessage(err.code));
+      window.App.showError(this.getErrorMessage(err.code));
     }
   }
 
@@ -66,24 +66,24 @@ class AuthManager {
     const password = document.getElementById('login-password').value;
 
     if (!email || !password) {
-      App.showError('E-posta ve şifre zorunludur.');
+      window.App.showError('E-posta ve şifre zorunludur.');
       return;
     }
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      App.showToast('Giriş başarılı!', 'success');
+      window.App.showToast('Giriş başarılı!', 'success');
     } catch (err) {
-      App.showError(this.getErrorMessage(err.code));
+      window.App.showError(this.getErrorMessage(err.code));
     }
   }
 
   async logout() {
     try {
       await signOut(auth);
-      App.showToast('Çıkış yapıldı.', 'success');
+      window.App.showToast('Çıkış yapıldı.', 'success');
     } catch (err) {
-      App.showError('Çıkış yapılırken hata oluştu.');
+      window.App.showError('Çıkış yapılırken hata oluştu.');
     }
   }
 
@@ -103,7 +103,8 @@ class AuthManager {
       'auth/user-not-found': 'Kullanıcı bulunamadı.',
       'auth/wrong-password': 'Hatalı şifre.',
       'auth/email-already-in-use': 'Bu e-posta zaten kullanımda.',
-      'auth/weak-password': 'Şifre çok zayıf.'
+      'auth/weak-password': 'Şifre çok zayıf.',
+      'auth/invalid-credential': 'E-posta veya şifre hatalı.'
     };
     return errors[code] || 'Bir hata oluştu. Tekrar deneyin.';
   }
@@ -118,10 +119,10 @@ class AuthManager {
         document.getElementById('app-container').classList.remove('hidden');
         document.getElementById('mobile-container').classList.remove('hidden');
         
-        App.initUserUI(this.userData);
-        ServerManager.loadServers();
-        ChatEngine.init();
-        CustomFeatures.init(this.userData);
+        window.App.initUserUI(this.userData);
+        window.ServerManager.loadServers();
+        window.ChatEngine.init();
+        window.CustomFeatures.init(this.userData);
         
         if (this.userData?.isServerCreator || this.userData?.role === 'admin' || this.userData?.role === 'superadmin') {
           document.getElementById('btn-create-server').classList.remove('hidden');
@@ -149,4 +150,8 @@ class AuthManager {
 }
 
 const Auth = new AuthManager();
+
+// 🔴 BURASI EKSİKTİ: Global scope'a atama
+window.Auth = Auth;
+
 export { Auth };
