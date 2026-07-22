@@ -17,10 +17,10 @@ class AppManager {
     
     // Enter key for messages
     document.getElementById('message-input')?.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') ChatEngine.sendMessage();
+      if (e.key === 'Enter') window.ChatEngine.sendMessage();
     });
     document.getElementById('mobile-message-input')?.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') ChatEngine.sendMessageMobile();
+      if (e.key === 'Enter') window.ChatEngine.sendMessageMobile();
     });
 
     // Register service worker
@@ -30,32 +30,25 @@ class AppManager {
   }
 
   initUserUI(userData) {
-    // Avatar
     const avatarImg = document.getElementById('user-avatar-img');
     const settingsAvatar = document.getElementById('settings-avatar');
     if (avatarImg) avatarImg.src = userData.photoURL;
     if (settingsAvatar) settingsAvatar.src = userData.photoURL;
     
-    // Name
     document.getElementById('user-display-name').textContent = userData.displayName;
     document.getElementById('settings-displayname').value = userData.displayName;
     document.getElementById('settings-status').value = userData.customStatus || '';
     
-    // Status
     const statusText = document.getElementById('user-custom-status');
     if (userData.customStatus) {
       statusText.textContent = userData.customStatus;
     }
     
-    // Stealth toggle
     document.getElementById('stealth-toggle').checked = userData.stealthMode || false;
-    
-    // DND toggle
     document.getElementById('dnd-toggle').checked = userData.autoDND !== false;
     
-    // Theme
     if (userData.themeConfig) {
-      CustomFeatures.applyTheme(userData.themeConfig);
+      window.CustomFeatures.applyTheme(userData.themeConfig);
     }
   }
 
@@ -74,9 +67,9 @@ class AppManager {
     
     if (serverId === 'home') {
       document.getElementById('current-server-name').textContent = 'Türkcord';
-      ServerManager.loadDMChannels();
+      window.ServerManager.loadDMChannels();
     } else {
-      ServerManager.loadServerChannels(serverId);
+      window.ServerManager.loadServerChannels(serverId);
     }
   }
 
@@ -85,11 +78,11 @@ class AppManager {
     this.currentChannel = 'friends';
     document.getElementById('current-channel-name').textContent = 'Arkadaşlar';
     document.getElementById('channel-topic').textContent = 'DM listesi';
-    ChatEngine.loadMessages('dm', 'friends');
+    window.ChatEngine.loadMessages('dm', 'friends');
   }
 
   showExplore() {
-    App.showToast('Keşfet özelliği yakında geliyor!', 'success');
+    this.showToast('Keşfet özelliği yakında geliyor!', 'success');
   }
 
   showMembers() {
@@ -128,9 +121,9 @@ class AppManager {
       
       document.getElementById('user-display-name').textContent = displayName;
       document.getElementById('user-custom-status').textContent = customStatus || 'Çevrimiçi';
-      App.showToast('Profil güncellendi!', 'success');
+      this.showToast('Profil güncellendi!', 'success');
     } catch (err) {
-      App.showError('Profil güncellenirken hata oluştu.');
+      this.showError('Profil güncellenirken hata oluştu.');
     }
   }
 
@@ -154,10 +147,10 @@ class AppManager {
         });
         document.getElementById('user-avatar-img').src = data.data.url;
         document.getElementById('settings-avatar').src = data.data.url;
-        App.showToast('Profil fotoğrafı güncellendi!', 'success');
+        this.showToast('Profil fotoğrafı güncellendi!', 'success');
       }
     } catch (err) {
-      App.showError('Fotoğraf yüklenirken hata oluştu.');
+      this.showError('Fotoğraf yüklenirken hata oluştu.');
     }
   }
 
@@ -210,7 +203,7 @@ class AppManager {
 }
 
 const App = new AppManager();
-window.App = App; // Global access for onclick handlers
+window.App = App;
 App.init();
 
 export { App };
