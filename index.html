@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#5865F2">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Türkcord</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="https://cdn.discordapp.com/embed/avatars/0.png">
+  
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/desktop.css" media="(min-width: 1024px)">
+  <link rel="stylesheet" href="css/mobile.css" media="(max-width: 1023px)">
+</head>
+<body>
+  <!-- ============ AUTH OVERLAY ============ -->
+  <div id="auth-overlay" class="auth-overlay active">
+    <div class="auth-box">
+      <div class="auth-logo">
+        <i class="fa-brands fa-discord"></i>
+        <h1>Türkcord</h1>
+        <p>Yeni nesil topluluk platformu</p>
+      </div>
+      
+      <div id="auth-login-form">
+        <div class="input-group">
+          <label>E-posta</label>
+          <input type="email" id="login-email" placeholder="ornek@mail.com">
+        </div>
+        <div class="input-group">
+          <label>Şifre</label>
+          <input type="password" id="login-password" placeholder="••••••••">
+        </div>
+        <button class="btn btn-primary btn-full" onclick="Auth.login()">Giriş Yap</button>
+        <p class="auth-toggle">Hesabın yok mu? <a onclick="App.toggleAuthMode()">Kayıt Ol</a></p>
+      </div>
+      
+      <div id="auth-register-form" class="hidden">
+        <div class="input-group">
+          <label>Kullanıcı Adı</label>
+          <input type="text" id="reg-displayname" placeholder="Kullanıcı Adın">
+        </div>
+        <div class="input-group">
+          <label>E-posta</label>
+          <input type="email" id="reg-email" placeholder="ornek@mail.com">
+        </div>
+        <div class="input-group">
+          <label>Şifre</label>
+          <input type="password" id="reg-password" placeholder="••••••••">
+        </div>
+        <button class="btn btn-primary btn-full" onclick="Auth.register()">Kayıt Ol</button>
+        <p class="auth-toggle">Zaten hesabın var mı? <a onclick="App.toggleAuthMode()">Giriş Yap</a></p>
+      </div>
+      
+      <div id="auth-error" class="auth-error hidden"></div>
+    </div>
+  </div>
+
+  <!-- ============ DESKTOP LAYOUT ============ -->
+  <div id="app-container" class="app-container hidden">
+    
+    <!-- 1. Sunucu Listesi (En Sol) -->
+    <aside class="server-sidebar">
+      <div class="server-list" id="server-list">
+        <div class="server-item home active" onclick="App.selectServer('home')" title="DM'ler">
+          <img src="https://cdn.discordapp.com/embed/avatars/0.png" alt="DM">
+        </div>
+        <div class="server-divider"></div>
+        <!-- Sunucular buraya dinamik gelir -->
+      </div>
+      
+      <div class="server-actions">
+        <button class="server-add hidden" id="btn-create-server" onclick="ServerManager.showCreateModal()" title="Sunucu Oluştur">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+        <button class="server-explore" onclick="App.showExplore()" title="Keşfet">
+          <i class="fa-solid fa-compass"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- 2. Kanal Listesi (Sol Orta) -->
+    <aside class="channel-sidebar" id="channel-sidebar">
+      <div class="channel-header">
+        <h3 id="current-server-name">Türkcord</h3>
+        <button class="btn-icon" onclick="ServerManager.showServerSettings()"><i class="fa-solid fa-chevron-down"></i></button>
+      </div>
+      
+      <div class="channel-list" id="channel-list">
+        <div class="channel-category">
+          <span>ÖZEL MESAJLAR</span>
+        </div>
+        <div class="channel-item active" onclick="App.selectDM()">
+          <i class="fa-solid fa-user-group"></i>
+          <span>Arkadaşlar</span>
+        </div>
+      </div>
+      
+      <div class="user-panel">
+        <div class="user-avatar" id="user-avatar" onclick="App.showUserSettings()">
+          <img src="" alt="avatar" id="user-avatar-img">
+          <div class="status-indicator online" id="user-status-dot"></div>
+        </div>
+        <div class="user-info">
+          <span class="user-name" id="user-display-name">Kullanıcı</span>
+          <span class="user-status-text" id="user-custom-status">Çevrimiçi</span>
+        </div>
+        <div class="user-actions">
+          <button onclick="App.toggleMute()"><i class="fa-solid fa-microphone" id="mic-icon"></i></button>
+          <button onclick="App.showUserSettings()"><i class="fa-solid fa-gear"></i></button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 3. Sohbet Alanı (Orta) -->
+    <main class="chat-area">
+      <header class="chat-header">
+        <div class="chat-header-left">
+          <i class="fa-solid fa-hashtag" id="channel-icon"></i>
+          <h3 id="current-channel-name">genel-sohbet</h3>
+          <span class="channel-topic" id="channel-topic">Hoş geldiniz!</span>
+        </div>
+        <div class="chat-header-right">
+          <button class="btn-icon" onclick="App.showMembers()" title="Üyeler"><i class="fa-solid fa-users"></i></button>
+          <button class="btn-icon" title="Ara"><i class="fa-solid fa-magnifying-glass"></i></button>
+          <button class="btn-icon" title="Bildirimler"><i class="fa-solid fa-bell"></i></button>
+        </div>
+      </header>
+      
+      <div class="messages-container" id="messages-container">
+        <div class="welcome-message">
+          <h2>🎉 Türkcord'a Hoş Geldin!</h2>
+          <p>Bu sunucunun ilk mesajı senin olsun.</p>
+        </div>
+      </div>
+      
+      <div class="chat-input-area">
+        <div class="voice-note-recording hidden" id="voice-recording-ui">
+          <div class="recording-waveform">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <span class="recording-timer" id="recording-timer">00:00</span>
+          <button class="btn btn-danger" onclick="VoiceEngine.stopRecording(true)"><i class="fa-solid fa-check"></i></button>
+          <button class="btn btn-secondary" onclick="VoiceEngine.stopRecording(false)"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div class="input-wrapper" id="normal-input">
+          <button class="attach-btn" onclick="document.getElementById('file-upload').click()"><i class="fa-solid fa-plus-circle"></i></button>
+          <input type="file" id="file-upload" class="hidden" accept="image/*,video/*,.pdf,.zip" onchange="ChatEngine.handleFileUpload(this)">
+          
+          <div class="message-input-container">
+            <input type="text" id="message-input" placeholder="Mesaj yaz..." autocomplete="off">
+            <button class="voice-btn" onmousedown="VoiceEngine.startRecording()" ontouchstart="VoiceEngine.startRecording()">
+              <i class="fa-solid fa-microphone"></i>
+            </button>
+          </div>
+          
+          <button class="send-btn" onclick="ChatEngine.sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </main>
+
+    <!-- 4. Üye Listesi (En Sağ - Desktop) -->
+    <aside class="members-sidebar" id="members-sidebar">
+      <div class="members-header">
+        <span>ÇEVRİMİÇİ — <b id="online-count">1</b></span>
+      </div>
+      <div class="members-list" id="members-list">
+        <!-- Dinamik -->
+      </div>
+    </aside>
+  </div>
+
+  <!-- ============ MOBILE LAYOUT ============ -->
+  <div id="mobile-container" class="mobile-container hidden">
+    
+    <!-- Swipe: Sol Drawer (Kanallar) -->
+    <div class="mobile-drawer left" id="mobile-drawer-left">
+      <div class="drawer-header">
+        <h3>Sunucular</h3>
+      </div>
+      <div class="mobile-server-list" id="mobile-server-list"></div>
+    </div>
+    
+    <!-- Swipe: Sağ Drawer (Üyeler) -->
+    <div class="mobile-drawer right" id="mobile-drawer-right">
+      <div class="drawer-header">
+        <h3>Üyeler</h3>
+      </div>
+      <div class="mobile-members-list" id="mobile-members-list"></div>
+    </div>
+
+    <!-- Mobile Main Content -->
+    <div class="mobile-main">
+      <header class="mobile-header">
+        <button onclick="App.toggleLeftDrawer()"><i class="fa-solid fa-bars"></i></button>
+        <h3 id="mobile-header-title"># genel-sohbet</h3>
+        <button onclick="App.toggleRightDrawer()"><i class="fa-solid fa-users"></i></button>
+      </header>
+      
+      <div class="mobile-messages" id="mobile-messages"></div>
+      
+      <div class="mobile-input-area">
+        <input type="text" id="mobile-message-input" placeholder="Mesaj yaz...">
+        <button onclick="ChatEngine.sendMessageMobile()"><i class="fa-solid fa-paper-plane"></i></button>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" onclick="App.navTo('servers')">
+        <i class="fa-solid fa-server"></i>
+        <span>Sunucular</span>
+      </button>
+      <button class="nav-item" onclick="App.navTo('dms')">
+        <i class="fa-solid fa-comment"></i>
+        <span>DM</span>
+      </button>
+      <button class="nav-item" onclick="App.navTo('notifications')">
+        <i class="fa-solid fa-bell"></i>
+        <span>Bildirim</span>
+      </button>
+      <button class="nav-item" onclick="App.navTo('profile')">
+        <i class="fa-solid fa-user"></i>
+        <span>Profil</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ============ MODALS ============ -->
+  
+  <!-- User Settings Modal -->
+  <div class="modal hidden" id="modal-settings">
+    <div class="modal-overlay" onclick="App.closeModal('modal-settings')"></div>
+    <div class="modal-content settings-modal">
+      <div class="settings-sidebar">
+        <h3>Kullanıcı Ayarları</h3>
+        <button class="settings-tab active" onclick="App.switchSettingsTab('profile')">Profil</button>
+        <button class="settings-tab" onclick="App.switchSettingsTab('privacy')">Gizlilik</button>
+        <button class="settings-tab" onclick="App.switchSettingsTab('appearance')">Görünüm</button>
+        <button class="settings-tab" onclick="App.switchSettingsTab('notifications')">Bildirimler</button>
+        <div class="settings-divider"></div>
+        <button class="settings-tab text-danger" onclick="Auth.logout()"><i class="fa-solid fa-right-from-bracket"></i> Çıkış Yap</button>
+      </div>
+      
+      <div class="settings-body">
+        <!-- Profil -->
+        <div class="settings-section" id="settings-profile">
+          <h2>Profil Düzenle</h2>
+          <div class="profile-edit">
+            <div class="avatar-upload">
+              <img id="settings-avatar" src="" alt="avatar">
+              <input type="file" id="avatar-upload-input" accept="image/*" onchange="App.handleAvatarUpload(this)">
+              <button onclick="document.getElementById('avatar-upload-input').click()"><i class="fa-solid fa-camera"></i></button>
+            </div>
+            <div class="input-group">
+              <label>Kullanıcı Adı</label>
+              <input type="text" id="settings-displayname">
+            </div>
+            <div class="input-group">
+              <label>Durum Mesajı</label>
+              <input type="text" id="settings-status" placeholder="Ne yapıyorsun?">
+            </div>
+            <button class="btn btn-primary" onclick="App.saveProfile()">Kaydet</button>
+          </div>
+        </div>
+        
+        <!-- Gizlilik -->
+        <div class="settings-section hidden" id="settings-privacy">
+          <h2>Gizlilik</h2>
+          <div class="setting-item">
+            <div>
+              <h4>Gizli Okuma Modu</h4>
+              <p>Mesajları okuduğunuzda karşı tarafa okundu bilgisi gitmez</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="stealth-toggle" onchange="CustomFeatures.toggleStealth()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <!-- Görünüm -->
+        <div class="settings-section hidden" id="settings-appearance">
+          <h2>Görünüm</h2>
+          <div class="theme-colors">
+            <div class="color-picker-group">
+              <label>Ana Renk</label>
+              <input type="color" id="theme-primary" value="#5865F2" onchange="CustomFeatures.updateTheme()">
+            </div>
+            <div class="color-picker-group">
+              <label>Arka Plan</label>
+              <input type="color" id="theme-bg" value="#313338" onchange="CustomFeatures.updateTheme()">
+            </div>
+          </div>
+          <button class="btn btn-secondary" onclick="CustomFeatures.resetTheme()">Varsayılana Sıfırla</button>
+        </div>
+        
+        <!-- Bildirimler -->
+        <div class="settings-section hidden" id="settings-notifications">
+          <h2>Bildirimler</h2>
+          <div class="setting-item">
+            <div>
+              <h4>Sessiz Saatler</h4>
+              <p>23:00 - 08:00 arası tüm bildirimler sessiz</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="dnd-toggle" checked onchange="CustomFeatures.toggleAutoDND()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <button class="modal-close" onclick="App.closeModal('modal-settings')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+  </div>
+
+  <!-- Create Server Modal -->
+  <div class="modal hidden" id="modal-create-server">
+    <div class="modal-overlay" onclick="App.closeModal('modal-create-server')"></div>
+    <div class="modal-content">
+      <h2>Sunucu Oluştur</h2>
+      <div class="input-group">
+        <label>Sunucu Adı</label>
+        <input type="text" id="new-server-name" placeholder="Süper Sunucum">
+      </div>
+      <div class="input-group">
+        <label>Sunucu İkonu (URL)</label>
+        <input type="text" id="new-server-icon" placeholder="https://...">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="ServerManager.createServer()">Oluştur</button>
+      <button class="btn btn-secondary btn-full" onclick="App.closeModal('modal-create-server')">İptal</button>
+    </div>
+  </div>
+
+  <!-- Bot Panel Modal -->
+  <div class="modal hidden" id="modal-bot-panel">
+    <div class="modal-overlay" onclick="App.closeModal('modal-bot-panel')"></div>
+    <div class="modal-content bot-modal">
+      <h2>🤖 Bot Yönetim Paneli</h2>
+      
+      <div class="bot-creator">
+        <h3>Yeni Bot Oluştur</h3>
+        <div class="input-group">
+          <label>Bot Adı</label>
+          <input type="text" id="bot-name" placeholder="TürkBot">
+        </div>
+        <div class="input-group">
+          <label>Prefix</label>
+          <input type="text" id="bot-prefix" placeholder="!" maxlength="3">
+        </div>
+        <button class="btn btn-primary" onclick="BotEngine.createBot()">Bot Oluştur</button>
+      </div>
+      
+      <div class="bot-commands">
+        <h3>Komut Oluşturucu</h3>
+        <div class="command-builder">
+          <input type="text" id="cmd-trigger" placeholder="Tetikleyici (örn: !merhaba)">
+          <input type="text" id="cmd-response" placeholder="Yanıt mesajı">
+          <label><input type="checkbox" id="cmd-embed"> Embed mesaj olarak gönder</label>
+          <button class="btn btn-secondary" onclick="BotEngine.addCommand()">Komut Ekle</button>
+        </div>
+        <div class="commands-list" id="commands-list"></div>
+      </div>
+      
+      <div class="bot-webhook">
+        <h3>Discord Webhook Endpoint</h3>
+        <code id="webhook-url">https://turkcord-offical.web.app/api/webhook/YOUR_BOT_TOKEN</code>
+        <p>Bu URL'yi discord.js botunuzda kullanabilirsiniz.</p>
+      </div>
+      
+      <button class="modal-close" onclick="App.closeModal('modal-bot-panel')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- ============ SCRIPTS ============ -->
+  <script type="module" src="js/firebase-config.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/translate-service.js"></script>
+  <script type="module" src="js/custom-features.js"></script>
+  <script type="module" src="js/voice-engine.js"></script>
+  <script type="module" src="js/chat-engine.js"></script>
+  <script type="module" src="js/bot-engine.js"></script>
+  <script type="module" src="js/discord-bridge.js"></script>
+  <script type="module" src="js/server-manager.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
