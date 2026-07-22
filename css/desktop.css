@@ -1,0 +1,75 @@
+/* Desktop 4-Column Layout */
+@media (min-width: 1024px) {
+  .mobile-container {
+    display: none !important;
+  }
+  
+  .server-sidebar {
+    position: relative;
+  }
+  
+  .channel-sidebar {
+    position: relative;
+  }
+  
+  .members-sidebar {
+    display: block;
+  }
+  
+  .chat-area {
+    min-width: 0;
+  }
+}
+
+/* Server hover pill effect */
+.server-item::before {
+  content: '';
+  position: absolute;
+  left: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background: var(--text-primary);
+  border-radius: 0 4px 4px 0;
+  transition: var(--transition);
+  opacity: 0;
+}
+.server-item:hover::before, .server-item.active::before {
+  opacity: 1;
+  height: 20px;
+}
+
+/* Tooltip on hover */
+.server-item[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  left: 60px;
+  background: var(--bg-tertiary);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  white-space: nowrap;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Channel unread indicator */
+.channel-item.unread::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 4px;
+  height: 8px;
+  background: var(--text-primary);
+  border-radius: 0 4px 4px 0;
+}
+
+/* Message hover actions */
+.message {
+  position: relative;
+}
+.message:hover {
+  background: rgba(255,255,255,0.02);
+}
+
